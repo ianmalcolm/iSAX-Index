@@ -15,11 +15,6 @@ public class Leaf extends Node {
 
     ArrayList<Long> children = new ArrayList();
 
-    Leaf(ISAX word, ArrayList<Long> incoming) {
-        this(word);
-        children = incoming;
-    }
-
     Leaf(ISAX word) {
         super(word);
     }
@@ -27,6 +22,10 @@ public class Leaf extends Node {
     Leaf(Leaf leaf) {
         this(leaf.load);
         children = (ArrayList<Long>) leaf.children.clone();
+    }
+    
+    public ArrayList<Long> getIDList(){
+        return children;
     }
 
     @Override
@@ -39,15 +38,10 @@ public class Leaf extends Node {
         return children.size();
     }
 
-    @Override
     public void add(long position) {
         children.add(position);
     }
 
-//    public void add(long position) {
-//        add(position, 0);
-//    }
-    @Override
     public void remove(long position) {
         for (int i = 0; i < numChildren(); i++) {
             if (children.get(i).equals(position)) {
@@ -57,14 +51,11 @@ public class Leaf extends Node {
         }
     }
 
-    public long get(int i) {
+    public long getID(int i) {
         assert i > 0 && i < numChildren();
         return children.get(i);
     }
 
-//    public void remove(long position) {
-//        remove(position, 0);
-//    }
     @Override
     public boolean isRoot() {
         return false;
@@ -101,20 +92,16 @@ public class Leaf extends Node {
     }
 
     @Override
-    public long integrityCheck(int depth) {
-        assert numChildren() > 0;
-        long ssCount = numChildren();
-//        System.out.println("Leaf at depth " + depth + "\t" + dispLoad());
-//        System.out.println(dispLoad());
-        return ssCount;
+    public long integrityCheck() {
+        int levelCount = 1;
+        {
+            Node n = this;
+            while (!n.isRoot()) {
+                n = n.parent;
+                levelCount++;
+            }
+        }
+        System.out.println("Leaf Level:\t" + levelCount + "\tIndex:\t" + parent.indexOf(this) + "\tNumber of children:\t" + numChildren());
+        return numChildren();
     }
-
-//    @Override
-//    public int depth2Size() {
-//        throw new UnsupportedOperationException("not supported");
-//    }
-//    @Override
-//    public void updateLoad(int maxCard) {
-//        throw new UnsupportedOperationException("not supported");
-//    }
 }

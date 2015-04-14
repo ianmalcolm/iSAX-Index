@@ -12,27 +12,24 @@ package ISAXIndex;
 public class ISAX implements Comparable<ISAX> {
 
     private Symbol[] load;
-    private int windowSize;
 
-//    public ISAX(double[] vals, int dimensionality, int cardinality, double mean, double sd) {
-//        int[] temp = getISAXVals(vals, dimensionality, NormalAlphabet.getCuts(cardinality), mean, sd);
-//        load = new Symbol[dimensionality];
-//        for (int i = 0; i < dimensionality; i++) {
-//            load[i] = new Symbol(temp[i], cardinality);
-//        }
-//        windowSize = vals.length;
-//    }
-    public ISAX(double[] vals, int dimensionality, int cardinality) {
-        int[] temp = getISAXVals(vals, dimensionality, NormalAlphabet.getCuts(cardinality));
-        load = new Symbol[dimensionality];
-        for (int i = 0; i < dimensionality; i++) {
-            load[i] = new Symbol(temp[i], cardinality);
+    public ISAX(double[] vals, int dim, int card) {
+        int[] temp = getISAXVals(vals, dim, NormalAlphabet.getCuts(card));
+        load = new Symbol[dim];
+        for (int i = 0; i < dim; i++) {
+            load[i] = new Symbol(temp[i], card);
         }
-        windowSize = vals.length;
     }
 
     ISAX(ISAX o) {
         this(o.load);
+    }
+
+    ISAX(ISAX o, int _width) {
+        this(o);
+        for (int i = 0; i < dim(); i++) {
+            load[i].setWidth(_width);
+        }
     }
 
     ISAX(Symbol[] workload) {
@@ -40,19 +37,19 @@ public class ISAX implements Comparable<ISAX> {
         for (int i = 0; i < workload.length; i++) {
             load[i] = new Symbol(workload[i]);
         }
-        windowSize = 0;
     }
 
+    // for root
     ISAX(int dimensionality) {
         load = new Symbol[dimensionality];
         for (int i = 0; i < dimensionality; i++) {
-            load[i] = new Symbol(0, 2);
+            load[i] = new Symbol(0, 0);
         }
     }
 
     public boolean covers(ISAX o) {
-        assert dimension() == o.dimension();
-        for (int i = 0; i < dimension(); i++) {
+        assert dim() == o.dim();
+        for (int i = 0; i < dim(); i++) {
             if (getWidth(i) > o.getWidth(i)) {
                 return false;
             }
@@ -65,29 +62,21 @@ public class ISAX implements Comparable<ISAX> {
         return load[i].load;
     }
 
-    public int getWidth(int i) {
+    private int getWidth(int i) {
         assert i >= 0 && i < load.length;
         return load[i].width;
     }
 
-//    private void setLoad(int i, int workload) {
-//        assert i >= 0 && i < load.length;
-//        load[i].load = workload;
-//    }
-//
-//    private void setCard(int i, int cardinality) {
-//        assert i >= 0 && i < load.length;
-//        load[i].card = cardinality;
-//    }
+    public int width() {
+        for (int i = 0; i < dim() - 1; i++) {
+            assert load[i].width == load[i + 1].width;
+        }
+        return load[0].width;
+    }
+
     public void setWidth(int maxWidth) {
         for (int i = 0; i < load.length; i++) {
-            if (load[i].width > maxWidth) {
-                load[i].load = load[i].load >> (load[i].width - maxWidth);
-
-            } else if (load[i].width < maxWidth) {
-                load[i].load = load[i].load << (maxWidth - load[i].width);
-            }
-            load[i].width = maxWidth;
+            load[i].setWidth(maxWidth);
         }
     }
 
@@ -106,25 +95,6 @@ public class ISAX implements Comparable<ISAX> {
             l = ts2isax(vals, cuts);
         } else {
             l = ts2isax(TSUtils.paa(vals, dimensionality), cuts);
-        }
-        return l;
-    }
-
-    /**
-     * Convert real-valued series into symbolic representation.
-     *
-     * @param vals Real valued timeseries.
-     * @param windowSize The PAA window size.
-     * @param cuts The cut values array used for SAX transform.
-     * @return The symbolic representation of the given real time-series.
-     * @throws TSException If error occurs.
-     */
-    private static int[] getISAXVals(double[] vals, int dimensionality, double[] cuts, double mean, double sd) {
-        int[] l;
-        if (vals.length == cuts.length + 1) {
-            l = ts2isax(TSUtils.zNormalize(vals, mean, sd), cuts);
-        } else {
-            l = ts2isax(TSUtils.zNormalize(TSUtils.paa(vals, dimensionality), mean, sd), cuts);
         }
         return l;
     }
@@ -162,7 +132,7 @@ public class ISAX implements Comparable<ISAX> {
 
     @Override
     public int compareTo(ISAX o) {
-        for (int i = 0; i < dimension(); i++) {
+        for (int i = 0; i < dim(); i++) {
             if (load[i].compareTo(o.load[i]) > 0) {
                 return 1;
             } else if (load[i].compareTo(o.load[i]) < 0) {
@@ -172,8 +142,21 @@ public class ISAX implements Comparable<ISAX> {
         return 0;
     }
 
+//    public double maxDist(ISAX o) {
+//        double dist = 0.0;
+//        for (int i = 0; i < dim(); i++) {
+//            double temp = load[i].maxDist(o.load[i]);
+//            if (temp >= Double.MAX_VALUE) {
+//                return Double.MAX_VALUE;
+//            } else {
+//                dist += temp * temp;
+//            }
+//        }
+//        return dist;
+//    }
+
     public boolean equals(ISAX o) {
-        for (int i = 0; i < dimension(); i++) {
+        for (int i = 0; i < dim(); i++) {
             if (!load[i].equals(o.load[i])) {
                 return false;
             }
@@ -181,42 +164,26 @@ public class ISAX implements Comparable<ISAX> {
         return true;
     }
 
-    public int dimension() {
+    private int dim() {
         return load.length;
     }
 
-    // minimum bounding word
-    public ISAX commonPrefix(ISAX o) {
-        assert dimension() == o.dimension();
-        Symbol[] r = new Symbol[dimension()];
-        for (int i = 0; i < dimension(); i++) {
-            r[i] = load[i].commonPrefix(o.load[i]);
-        }
-        return new ISAX(r);
-    }
-
     public double minDist(ISAX o) {
-        assert dimension() == o.dimension();
+        assert dim() == o.dim();
         double dist = 0;
-        for (int i = 0; i < dimension(); i++) {
+        for (int i = 0; i < dim(); i++) {
             double temp = load[i].minDist(o.load[i]);
             dist += temp * temp;
         }
-        return Math.sqrt(dist * windowSize / dimension());
+        return dist;
     }
 
-    public boolean extendByOneBit(int a, int maxCard) {
-        for (Symbol s : load) {
-            if (s.width >= maxCard) {
-                return false;
-            }
+    public String disp() {
+        String l = "";
+        for (int i = 0; i < dim(); i++) {
+            l = l + "\t" + getLoad(i) + "(" + getWidth(i) + ")";
         }
-        for (int i = 0; i < dimension(); i++) {
-            Symbol s = load[i];
-            int bit = (a & (1 << (dimension() - 1 - i))) >> (dimension() - 1 - i);
-            s.load = (s.load << 1) + bit;
-        }
-        return true;
+        return l;
     }
 }
 
@@ -225,9 +192,13 @@ class Symbol implements Comparable<Symbol> {
     public int load;
     public int width;
 
-    Symbol(int workload, int cardinality) {
+    Symbol(int workload, int card) {
         load = workload;
-        width = (int) Math.ceil(Math.log(cardinality - 1) / Math.log(2));
+        if (card < 2) {
+            width = 0;
+        } else {
+            width = (int) Math.ceil(Math.log(card - 1) / Math.log(2));
+        }
     }
 
     Symbol(Symbol o) {
@@ -235,23 +206,25 @@ class Symbol implements Comparable<Symbol> {
         width = o.width;
     }
 
-    public Symbol commonPrefix(Symbol o) {
+    Symbol(Symbol o, int _width) {
+        this(o);
+        width = _width;
+        if (o.width > width) {
+            load = o.load >> (o.width - width);
 
-        int minWidth = width < o.width ? width : o.width;
-        int prefix = 0;
-        int commonWidth = 0;
-        for (int i = 1; i <= minWidth; i++) {
-            int bitLoad = (load & (1 << (width - i))) >> (width - i);
-            int bitOLoad = (o.load & (1 << (o.width - i))) >> (o.width - i);
-            if (bitLoad == bitOLoad) {
-                prefix = prefix << 1;
-                prefix = prefix + bitLoad;
-                commonWidth++;
-            } else {
-                break;
-            }
+        } else if (o.width < width) {
+            load = o.load << (width - o.width);
         }
-        return new Symbol(prefix, commonWidth);
+    }
+
+    public void setWidth(int _width) {
+        if (width > _width) {
+            load = load >> (width - _width);
+
+        } else if (width < _width) {
+            load = load << (_width - width);
+        }
+        width = _width;
     }
 
     @Override
@@ -259,12 +232,12 @@ class Symbol implements Comparable<Symbol> {
         if (width == o.width) {
             return load - o.load;
         } else if (width > o.width) {
-            int cardDiff = width - o.width;
-            int rsLoad = load >> cardDiff;
+            int widthDiff = width - o.width;
+            int rsLoad = load >> widthDiff;
             return rsLoad - o.load;
         } else {
-            int cardDiff = o.width - width;
-            int rsOLoad = o.load >> cardDiff;
+            int widthDiff = o.width - width;
+            int rsOLoad = o.load >> widthDiff;
             return load - rsOLoad;
         }
     }
@@ -273,38 +246,79 @@ class Symbol implements Comparable<Symbol> {
         return load == o.load && width == o.width;
     }
 
+//    public double maxDist(Symbol o) {
+//        if (load >= 1 << width || load <= 0) {
+//            return Double.MAX_VALUE;
+//        }
+//        if (o.load >= 1 << o.width || o.load <= 0) {
+//            return Double.MAX_VALUE;
+//        }
+//        Symbol a, b;
+//        if (this.width > o.width) {
+//            a = o;
+//            b = this;
+//        } else {
+//            a = this;
+//            b = o;
+//        }
+//        if (a.width == b.width) {
+//            double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << a.width);
+//            if (a.load > b.load) {
+//                return distMat[a.load + 1][b.load - 1];
+//            } else {
+//                return distMat[a.load - 1][b.load + 1];
+//            }
+//        } else {
+//            int widthDiff = b.width - a.width;
+//            int coarse = a.load - (b.load >> widthDiff);
+//            double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << b.width);
+//            if (coarse > 0) {
+//                int lsALoad = (a.load + 1 << widthDiff) & (Integer.MAX_VALUE << widthDiff);
+//                return distMat[b.load - 1][lsALoad];
+//            } else if (coarse < 0) {
+//                int lsALoad = (a.load - 1 << widthDiff) | (Integer.MAX_VALUE >> (Integer.SIZE - widthDiff));
+//                return distMat[b.load + 1][lsALoad];
+//            } else {
+//                int lsALoad1 = (a.load + 1 << widthDiff) & (Integer.MAX_VALUE << widthDiff);
+//                double temp1 = distMat[b.load - 1][lsALoad1];
+//                int lsALoad2 = (a.load - 1 << widthDiff) | (Integer.MAX_VALUE >> (Integer.SIZE - widthDiff));
+//                double temp2 = distMat[b.load + 1][lsALoad2];
+//                if (temp1 > temp2) {
+//                    return temp1;
+//                } else {
+//                    return temp2;
+//                }
+//            }
+//        }
+//    }
+
     public double minDist(Symbol o) {
-        if (width == o.width) {
-            double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << width);
-            return distMat[load][o.load];
+        Symbol a, b;
+        if ((this.width < o.width)) {
+            a = this;
+            b = o;
         } else {
-            if (width > o.width) {
-                double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << width);
-                int cardDiff = width - o.width;
-                int rsLoad = load >> cardDiff;
-                if (rsLoad > o.load) {
-                    int lsOLoad = (o.load << cardDiff) | (Integer.MAX_VALUE >> (Integer.SIZE - cardDiff));
-                    return distMat[load][lsOLoad];
-                } else if (rsLoad < o.load) {
-                    int lsOLoad = (o.load << cardDiff) & (Integer.MAX_VALUE << cardDiff);
-                    return distMat[load][lsOLoad];
-                } else {
-                    return 0;
-                }
+            b = this;
+            a = o;
+        }
+
+        if (a.width == b.width) {
+            double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << a.width);
+            return distMat[a.load][b.load];
+        } else {
+            double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << b.width);
+            int widthDiff = b.width - a.width;
+            int rsBLoad = b.load >> widthDiff;
+            if (a.load > rsBLoad) {
+                int lsALoad = (a.load << widthDiff) & (Integer.MAX_VALUE << widthDiff);
+                return distMat[b.load][lsALoad];
+            } else if (a.load < rsBLoad) {
+                int lsALoad = (a.load << widthDiff) | (Integer.MAX_VALUE >> (Integer.SIZE - widthDiff));
+                return distMat[b.load][lsALoad];
             } else {
-                double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << o.width);
-                int widthDiff = o.width - width;
-                int rsOLoad = o.load >> widthDiff;
-                if (load > rsOLoad) {
-                    int lsLoad = (load << widthDiff) | (Integer.MAX_VALUE >> (Integer.SIZE - widthDiff));
-                    return distMat[load][lsLoad];
-                } else if (load < rsOLoad) {
-                    int lsLoad = (load << widthDiff) & (Integer.MAX_VALUE << widthDiff);
-                    return distMat[load][lsLoad];
-                } else {
-                    return 0;
-                }
+                return 0;
             }
         }
     }
+
 }

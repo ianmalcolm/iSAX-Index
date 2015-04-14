@@ -17,23 +17,31 @@ import java.util.logging.Logger;
 public class Node implements Comparable<Node> {
 
     protected Node parent = null;
-    protected ArrayList<Node> children = new ArrayList();
+    protected ArrayList<Node> children = null;
     protected ISAX load;
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 
     Node(ISAX word) {
         load = new ISAX(word);
-    }
-
-    Node(ISAX word, ArrayList<Node> incoming) {
-        this(word);
-        add(incoming);
+        children = new ArrayList();
     }
 
     // for root node
     Node(int dimensionality) {
-        this(new ISAX(dimensionality));
+        this.setParent(null);
+        children = new ArrayList();
+        load = new ISAX(dimensionality);
+    }
 
+    Node(Node n, int _width) {
+        this.setParent(n.parent);
+        children = new ArrayList();
+        load = new ISAX(n.load, _width);
+    }
+
+    // fake node constructor
+    Node(ISAX o, int _width) {
+        load = new ISAX(o, _width);
     }
 
     public boolean equals(ISAX o) {
@@ -44,55 +52,39 @@ public class Node implements Comparable<Node> {
         return numChildren() == 0;
     }
 
-    public long integrityCheck(int depth) {
-        long ssCount = 0;
-        if (isRoot()) {
-            assert parent == null;
-        }
-//        System.out.println("Node at depth " + depth + "\t" + dispLoad());
-        for (int i = 0; i < load.dimension(); i++) {
-            assert load.getWidth(i) == depth - 1;
-        }
-        Collections.sort(children);
-        for (int i = 0; i < numChildren() - 1; i++) {
-            Node first = children.get(i);
-            Node second = children.get(i + 1);
-            assert first.compareTo(second) < 0;
-        }
-        int leafCount = 0;
-        int nodeCount = 0;
-        for (Node n : children) {
-            if (n.isLeaf()) {
-                leafCount++;
-            } else {
-                nodeCount++;
+    protected int indexOf(Node n) {
+        return children.indexOf(n);
+    }
+
+    public long integrityCheck() {
+        long idCount = 0;
+        int levelCount = 1;
+        {
+            Node n = this;
+            while (!n.isRoot()) {
+                n = n.parent;
+                levelCount++;
             }
-            assert n.parent == this;
-            ssCount += n.integrityCheck(depth + 1);
         }
-        assert leafCount <= (1 << load.dimension());
-        assert nodeCount <= (1 << load.dimension());
+        if (!isRoot()) {
+            System.out.println("Node Level:\t" + levelCount + "\tIndex:\t" + parent.indexOf(this) + "\tNumber of children:\t" + numChildren());
+        } else {
+            System.out.println("Node Level:\t" + levelCount + "\tIndex:\t" + "Root" + "\tNumber of children:\t" + numChildren());
+        }
+        for (Node n : children) {
+            assert n.parent == this;
+            idCount += n.integrityCheck();
+        }
 
-        return ssCount;
+        return idCount;
     }
 
-    public ISAX getLoad() {
-        return new ISAX(load);
-    }
-
-    public int getLoad(int i) {
-        return load.getLoad(i);
+    public String dispLoad() {
+        return load.disp();
     }
 
     static void setLoggerLevel(Level level) {
         logger.setLevel(level);
-    }
-
-//    public boolean covers(ISAX o) {
-//        return load.covers(o);
-//    }
-    public int compareTo(ISAX o) {
-        return load.compareTo(o);
     }
 
     public boolean isLeaf() {
@@ -107,30 +99,7 @@ public class Node implements Comparable<Node> {
         return children.size();
     }
 
-//    public long recursiveSize() {
-//        long result = 0;
-//        if (isLeaf()) {
-//            return size();
-//        } else {
-//            for (Node n : children) {
-//                result += n.recursiveSize();
-//            }
-//            return result;
-//        }
-//    }
-//    public int depth2Size() {
-//        int sum = 0;
-//        for (Node n : children) {
-//            if (n.isLeaf()) {
-//                sum++;
-//            } else {
-//                sum += n.size();
-//            }
-//        }
-//        return sum;
-//    }
     public void split() {
-        assert !isEmpty();
         ArrayList<Node> tempChildList = new ArrayList();
         for (Node n : children) {
             if (n.isLeaf()) {
@@ -138,53 +107,31 @@ public class Node implements Comparable<Node> {
             }
         }
         if (tempChildList.size() > 0) {
-            remove(tempChildList);
+            removeAll(tempChildList);
         }
 
-        ArrayList<Node> tempParentList = new ArrayList();
-        for (Node leaf : tempChildList) {
-            boolean processed = false;
-            for (Node tempParent : tempParentList) {
-                if (tempParent.compareTo(leaf) == 0) {
-                    tempParent.add(leaf);
-                    processed = true;
-                    break;
-                }
+        Node fakeGrandparent = new Node(this, width());
+        // each child must be a leaf
+        for (Node child : tempChildList) {
+            Node tempParent = fakeGrandparent.findPath(child);
+            if (tempParent == null) {
+                tempParent = new Node(child, width() + 1);
+                fakeGrandparent.add(tempParent);
             }
-            if (!processed) {
-                ISAX tempLoad = leaf.getLoad();
-                tempLoad.setWidth(getWidth(0) + 1);
-                Node tempParent = new Node(tempLoad);
-                tempParentList.add(tempParent);
-                tempParent.add(leaf);
-            }
+            tempParent.add(child);
         }
-        add(tempParentList);
-//        Collections.sort(children);
-        return;
+
+//        for (Node n:children){
+//            for (Node newN:fakeGrandparent.children){
+//                assert newN
+//            }
+//        }
+        addAll(fakeGrandparent.children);
+
     }
 
     public void setParent(Node n) {
         parent = n;
-    }
-
-    public void add(ArrayList<Node> nodeList) {
-        for (Node n : nodeList) {
-            n.setParent(this);
-        }
-        children.addAll(nodeList);
-    }
-
-    public void remove(ArrayList<Node> nodeList) {
-        children.removeAll(nodeList);
-    }
-
-    public String dispLoad() {
-        String l = "";
-        for (int i = 0; i < load.dimension(); i++) {
-            l = l + "\t" + load.getLoad(i) + "(" + load.getWidth(i) + ")";
-        }
-        return l;
     }
 
     public boolean needsSplit(int maxCap) {
@@ -197,55 +144,117 @@ public class Node implements Comparable<Node> {
         return count > maxCap;
     }
 
+    public Node findPath(ISAX o) {
+        assert o.width() > this.width();
+        Node fakeNode = new Node(o, o.width());
+        int position = Collections.binarySearch(children, fakeNode);
+//        System.out.println();
+        if (position >= 0) {
+            return getNode(position);
+        } else {
+            return null;
+        }
+    }
+
+    private Node findPath(Node n) {
+        assert n.width() > this.width();
+        int position = Collections.binarySearch(children, n);
+        if (position >= 0) {
+            return getNode(position);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean covers(ISAX o) {
+        if (isRoot()) {
+            return true;
+        } else {
+            assert o.width() >= this.width();
+            return this.load.compareTo(o) == 0;
+        }
+    }
+
+    public Node getNode(int i) {
+        assert i >= 0 && i < children.size();
+        return children.get(i);
+    }
+
     public ArrayList<Node> merge() {
+        for (Node n : children) {
+            assert n.isLeaf();
+        }
+        return children;
+    }
+
+    public ArrayList<Node> getNodeList() {
         return children;
     }
 
     public boolean needsMerge(int minCap) {
         int count = 0;
         for (int i = 0; i < numChildren(); i++) {
-            if (!children.get(i).isLeaf()) {
+            if (getNode(i).isLeaf()) {
                 count++;
             }
         }
         return count == numChildren() && count < minCap;
     }
 
-    private int getWidth(int i) {
-        return load.getWidth(i);
+    protected int width() {
+        return load.width();
     }
 
     @Override
     public int compareTo(Node o) {
-        return load.compareTo(o.load);
+        Node a = this;
+        Node b = o;
+        if (a.parent != null) {
+            if (a.width() > a.parent.width() + 1) {
+                a = new Node(this, a.parent.width() + 1);
+            }
+        } else if (b.parent != null) {
+            if (b.width() > b.parent.width() + 1) {
+                b = new Node(o, b.parent.width() + 1);
+            }
+        }
+
+        int coarse = a.load.compareTo(b.load);
+        if (coarse > 0) {
+            return 1;
+        } else if (coarse < 0) {
+            return -1;
+        } else if (this.width() == a.width() && o.width() == b.width()) {
+            return 0;
+        } else {
+            return this.load.compareTo(o.load);
+        }
+    }
+
+    public double minDist(ISAX o) {
+        return load.minDist(o);
     }
 
     public void add(Node n) {
-        children.add(n);
+        int position = Collections.binarySearch(children, n);
+        assert position < 0;
+        children.add(-1 * position - 1, n);
         n.setParent(this);
-//        Collections.sort(children);
-    }
-
-//    public void updateLoad(int maxCard) {
-//        Node first = children.get(0);
-//        Node last = children.get(size() - 1);
-//        load = first.load.commonPrefix(last.load);
-//        int[] c = new int[load.size()];
-//        for (int i = 0; i < c.length; i++) {
-//            c[i] = maxCard;
-//        }
-//        load.setCard(c);
-//    }
-    public void add(long position) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    public void remove(long positions) {
-        throw new UnsupportedOperationException("not supported");
     }
 
     public void remove(Node n) {
         children.remove(n);
+    }
+
+    public void addAll(ArrayList<Node> nodeList) {
+        for (Node n : nodeList) {
+            n.setParent(this);
+            add(n);
+        }
+    }
+
+    public void removeAll(ArrayList<Node> nodeList) {
+        children.removeAll(nodeList);
     }
 
 }

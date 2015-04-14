@@ -10,6 +10,7 @@ import ISAXIndex.ED;
 import ISAXIndex.Index;
 import ISAXIndex.TSUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -62,40 +63,55 @@ public class Test {
             index.add(dh.get(i), i);
         }
 
+//        ArrayList<Long> list = new ArrayList();
 //        for (long id : index) {
-//            System.out.println(id);
+//            int position = Collections.binarySearch(list, id);
+//            assert position < 0;
+//            list.add(-1 * position - 1, id);
 //        }
-        System.out.println("");
-
+//        System.out.println(list.size());
+//
+//        final long exampleID = 5100;
+//        final int k = 4;
+//        ArrayList<Long> exception = new ArrayList();
+//        exception.add(exampleID);
+//
+//        System.out.println("Find exception aware exact k nearest neighbors of exampleID: " + exampleID);
+//        Date start = new Date();
+//        ArrayList<Long> knn = index.knn(dh.get(exampleID), k, dh, exception);
+//        Date end = new Date();
+//        System.out.println("Elapsed time: " + ((double) (end.getTime() - start.getTime()) / 1000));
+//
+//        for (long id : knn) {
+//            double dist = ED.distance(dh.getRaw(id), dh.getRaw(exampleID));
+//            System.out.println(id + ":\t" + dist);
+//        }
         final long exampleID = 5100;
-        final int k = 4;
-        ArrayList<Long> exception = new ArrayList();
-        exception.add(exampleID);
+        final double dist = 0.5;
 
-        System.out.println("Find exception aware exact k nearest neighbors of exampleID: " + exampleID);
+        System.out.println("Range search within dist of exampleID: " + exampleID);
         Date start = new Date();
-        ArrayList<Long> knn = index.knn(dh.get(exampleID), k, dh, exception);
+        ArrayList<Long> rs = index.rs(dh.get(exampleID), dh.unityPower(dist), windowSize, dh);
         Date end = new Date();
         System.out.println("Elapsed time: " + ((double) (end.getTime() - start.getTime()) / 1000));
 
-        for (long id : knn) {
-            double dist = ED.distance(dh.getRaw(id), dh.getRaw(exampleID));
-            System.out.println(id + ":\t" + dist);
+        for (long id : rs) {
+            double rawDist = ED.distance(dh.getRaw(id), dh.getRaw(exampleID));
+            System.out.println(id + ":\t" + rawDist);
         }
 
-        System.out.println("");
-
-        System.out.println("Find exception aware approximated k nearest neighbors of exampleID: " + exampleID);
-        start = new Date();
-        knn = index.knn(dh.get(exampleID), k, exception);
-        end = new Date();
-        System.out.println("Elapsed time: " + ((double) (end.getTime() - start.getTime()) / 1000));
-
-        for (long id : knn) {
-            double dist = ED.distance(dh.getRaw(id), dh.getRaw(exampleID));
-            System.out.println(id + ":\t" + dist);
-        }
-
+//        System.out.println("");
+//
+//        System.out.println("Find exception aware approximated k nearest neighbors of exampleID: " + exampleID);
+//        start = new Date();
+//        knn = index.knn(dh.get(exampleID), k, exception);
+//        end = new Date();
+//        System.out.println("Elapsed time: " + ((double) (end.getTime() - start.getTime()) / 1000));
+//
+//        for (long id : knn) {
+//            double dist = ED.distance(dh.getRaw(id), dh.getRaw(exampleID));
+//            System.out.println(id + ":\t" + dist);
+//        }
         for (int i = 0; i < timeseries.length - windowSize + 1; i++) {
             index.remove(dh.get(i), i);
         }
@@ -130,6 +146,10 @@ class DataInMemory extends DataHandler {
         windowSize = _windowSize;
         mean = _mean;
         std = _std;
+    }
+
+    public double unityPower(double in) {
+        return in / std;
     }
 
     @Override

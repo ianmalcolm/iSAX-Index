@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,11 +19,11 @@ import java.util.logging.Logger;
  */
 public class Index implements Iterable<Long> {
 
-    private Node root;
-    private int dimension;
-    private int minCap;
-    private int maxCap;
-    private int maxWidth;
+    private final Node root;
+    private final int dimension;
+    private final int minCap;
+    private final int maxCap;
+    private final int maxWidth;
 
     private static final Logger logger = Logger.getLogger(Index.class.getName());
 
@@ -44,94 +43,131 @@ public class Index implements Iterable<Long> {
         Node.setLoggerLevel(level);
     }
 
-    private Stack<Node> findPath(ISAX isax) {
-        Stack<Node> path = new Stack();
-        path.push(root);
-
-        while (!path.peek().equals(isax)) {
-            if (path.peek().isLeaf() && path.peek().isEmpty()) {
-                break;
+    private Stack<Node> findPath(Node startNode, ISAX o) {
+        Stack<Node> path = null;
+        if (startNode.covers(o)) {
+            path = new Stack();
+            path.push(startNode);
+        } else {
+            return path;
+        }
+        while (!path.peek().isLeaf()) {
+            Node parent = path.peek();
+            Node child = parent.findPath(o);
+            if (child != null) {
+                path.push(child);
             } else {
-                Node parent = path.peek();
-                for (Node n : parent.children) {
-                    if (n.compareTo(isax) == 0) {
-                        path.push(n);
-                        break;
-                    }
-                }
-                if (path.peek() == parent) {
-                    break;
-                }
+                break;
             }
         }
         return path;
     }
 
-    public void add(double[] vals, long position) {
-        logger.finer("subsequence at position " + position);
-
+    public void add(double[] vals, long id) {
+        logger.finer("subsequence at position " + id);
         ISAX in = new ISAX(vals, dimension, 1 << (maxWidth));
-
         // find the path to the corresponding leaf node
-        Stack<Node> path = findPath(in);
-        if (!path.peek().equals(in)) {
+        Stack<Node> path = findPath(root, in);
+        if (path.peek().isLeaf()) {
+            ((Leaf) path.peek()).add(id);
+        } else {
             Leaf leaf = new Leaf(in);
+            leaf.add(id);
             path.peek().add(leaf);
-            path.push(leaf);
-//            System.out.println(leaf.dispLoad());
-        }
-
-        // add the subsequence
-        path.pop().add(position);
-
-        // check if merge is necessary
-        while (!path.isEmpty()) {
-            Node n = path.pop();
-            if (n.needsSplit(maxCap)) {
-                n.split();
+            if (path.peek().needsSplit(maxCap)) {
+                path.peek().split();
             }
         }
+
     }
 
-    public boolean remove(double[] vals, long position) {
-        logger.finer("subsequence at position " + position);
-
+    public void remove(double[] vals, long id) {
+        logger.finer("subsequence at position " + id);
         ISAX out = new ISAX(vals, dimension, 1 << (maxWidth));
-
         // find the path to the corresponding leaf node
-        Stack<Node> path = findPath(out);
-        if (!path.peek().equals(out)) {
-            logger.fine("subsequence not found: position " + position);
-            return false;
-        }
+        Stack<Node> path = findPath(root, out);
+        assert path != null;
+        if (path.peek().isLeaf()) {
+            Leaf leaf = (Leaf) path.peek();
+            leaf.remove(id);
+            if (leaf.isEmpty()) {
+                path.pop();
+                path.peek().remove(leaf);
 
-        // remove the subsequence
-        path.pop().remove(position);
-
-        // check if merge is necessary
-        while (!path.isEmpty()) {
-            Node child = path.pop();
-            if (child.needsMerge(minCap)) {
-                if (child.isRoot()) {
-                    break;
-                } else {
-                    Node parent = child.parent;
-                    parent.remove(child);
-                    parent.add(child.merge());
+                while (!path.peek().isRoot()) {
+                    Node child = path.pop();
+                    Node parent = path.peek();
+                    if (child.needsMerge(minCap)) {
+                        parent.remove(child);
+                        parent.addAll(child.merge());
+                    } else {
+                        break;
+                    }
                 }
             }
         }
-        return true;
     }
 
-    public void integrityCheck() {
-        long totalSS = root.integrityCheck(1);
-//        System.out.println("Total number of subsequence: " + totalSS);
+    public long integrityCheck() {
+        long totalSS = root.integrityCheck();
+        return totalSS;
     }
 
     @Override
     public Iterator<Long> iterator() {
         return new BreadthFirstSearch(root);
+    }
+
+    public ArrayList<Long> rs(double[] vals, double dist, int windowSize) {
+        ISAX q = new ISAX(vals, dimension, 1 << maxWidth);
+        double _dist2 =  dist*dist / windowSize * dimension;
+        
+        ArrayList<Long> result = new ArrayList();
+        ArrayList<Node> candidates = new ArrayList();
+        candidates.add(root);
+        while (!candidates.isEmpty()) {
+            Node n = candidates.get(0);
+            candidates.remove(0);
+            if (n.minDist(q) <= _dist2) {
+                if (n.isLeaf()) {
+                    result.addAll(((Leaf) n).getIDList());
+                } else {
+                    candidates.addAll(n.getNodeList());
+                }
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<Long> rs(double[] vals, double dist, int windowSize, DataHandler dh) {
+        ISAX q = new ISAX(vals, dimension, 1 << maxWidth);
+        double _dist2 =  dist*dist / windowSize * dimension;
+
+        ArrayList<IDDist> list = new ArrayList();
+        ArrayList<Node> candidates = new ArrayList();
+        candidates.add(root);
+        while (!candidates.isEmpty()) {
+            Node n = candidates.get(0);
+            candidates.remove(0);
+            if (n.minDist(q) <= _dist2) {
+                if (n.isLeaf()) {
+                    for (Long id : ((Leaf) n).children) {
+                        double curDist = ED.distance(vals, dh.get(id));
+                        if (curDist <= dist) {
+                            list.add(new IDDist(id, curDist));
+                        }
+                    }
+                } else {
+                    candidates.addAll(n.children);
+                }
+            }
+        }
+        Collections.sort(list);
+        ArrayList<Long> results = new ArrayList();
+        for (IDDist id : list) {
+            results.add(id.id);
+        }
+        return results;
     }
 
     public ArrayList<Long> knn(double[] vals, int k) {
@@ -200,9 +236,12 @@ public class Index implements Iterable<Long> {
                             return false;
                         }
                     }
-                    list.add(leafCopy);
-                    Collections.sort(list, comp);
-
+                    int position = Collections.binarySearch(list, leafCopy, comp);
+                    if (position < 0) {
+                        list.add(-1 * position - 1, leafCopy);
+                    } else {
+                        list.add(position, leafCopy);
+                    }
                     if (numID() > k) {
                         while (numID() - list.get(list.size() - 1).numChildren() > k) {
                             list.remove(list.size() - 1);
@@ -273,36 +312,6 @@ public class Index implements Iterable<Long> {
 
         class KNNID {
 
-            class IDDist implements Comparable<IDDist> {
-
-                private long id = -1;
-                private double dist = Double.MAX_VALUE;
-
-                IDDist(long _id, double _dist) {
-                    id = _id;
-                    dist = _dist;
-                }
-
-                @Override
-                public int compareTo(IDDist t) {
-                    if (dist > t.dist) {
-                        return 1;
-                    } else if (dist < t.dist) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-
-                public boolean equals(IDDist o) {
-                    return o.id == id;
-                }
-
-                public boolean equals(Long _id) {
-                    return _id == id;
-                }
-            }
-
             private ArrayList<IDDist> list = new ArrayList();
             private int k = 0;
             private ArrayList<Long> exception = null;
@@ -323,15 +332,12 @@ public class Index implements Iterable<Long> {
                     }
                 }
                 IDDist o = new IDDist(id, dist);
-                list.add(o);
-                Collections.sort(list);
-//                while (list.size() > k) {
-//                    if (list.get(list.size() - 1).dist > kDist()) {
-//                        list.remove(list.size() - 1);
-//                    } else {
-//                        break;
-//                    }
-//                }
+                int position = Collections.binarySearch(list, o);
+                if (position < 0) {
+                    list.add(-1 * position - 1, o);
+                } else {
+                    list.add(position, o);
+                }
                 return true;
             }
 
@@ -470,7 +476,7 @@ public class Index implements Iterable<Long> {
             if (next == null) {
                 return null;
             } else {
-                long result = next.get(pointer++);
+                long result = next.getID(pointer++);
                 if (pointer >= next.numChildren()) {
                     next = null;
                     pointer = 0;
@@ -520,4 +526,35 @@ public class Index implements Iterable<Long> {
         }
 
     }
+
+    class IDDist implements Comparable<IDDist> {
+
+        private long id = -1;
+        private double dist = Double.MAX_VALUE;
+
+        IDDist(long _id, double _dist) {
+            id = _id;
+            dist = _dist;
+        }
+
+        @Override
+        public int compareTo(IDDist t) {
+            if (dist > t.dist) {
+                return 1;
+            } else if (dist < t.dist) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+
+        public boolean equals(IDDist o) {
+            return o.id == id;
+        }
+
+        public boolean equals(Long _id) {
+            return _id == id;
+        }
+    }
+
 }

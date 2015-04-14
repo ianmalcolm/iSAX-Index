@@ -206,6 +206,18 @@ public class TSUtils {
     }
 
     /**
+     * Z-Normalize timeseries to the mean zero and standard deviation of one.
+     *
+     * @param val The timeseries.
+     * @param mean The mean values.
+     * @param sd The standard deviation.
+     * @return Z-normalized time-series.
+     */
+    public static double zNormalize(double val, double mean, double sd) {
+        return (val - mean) / sd;
+    }
+
+    /**
      * Counts the number of NaNs' in the timeseries.
      *
      * @param series The timeseries.
