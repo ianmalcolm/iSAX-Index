@@ -6,11 +6,10 @@
 package Test;
 
 import ISAXIndex.DataHandler;
-import ISAXIndex.ED;
+import ISAXIndex.Distance;
 import ISAXIndex.Index;
 import ISAXIndex.TSUtils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -35,7 +34,7 @@ public class Test {
     }
 
     public static void main(String[] args) throws Exception {
-        String FILE = "C:/users/ian/datasets/ecg/ecg100.arff";
+        String FILE = "../datasets/ecg/ecg100.arff";
         String DATA_VALUE_ATTRIBUTE = "value0";
         int windowSize = 360;
         int DIMENSIONALITY = 4;
@@ -56,7 +55,8 @@ public class Test {
         double std = TSUtils.stDev(timeseries);
 
         DataInMemory dh = new DataInMemory(timeseries, windowSize, mean, std);
-        Index index = new Index(CARDINALITY, DIMENSIONALITY);
+        Distance df = new ED();
+        Index index = new Index(CARDINALITY, DIMENSIONALITY, df);
         Index.setLoggerLevel(level);
 
         for (int i = 0; i < timeseries.length - windowSize + 1; i++) {
@@ -96,7 +96,7 @@ public class Test {
         System.out.println("Elapsed time: " + ((double) (end.getTime() - start.getTime()) / 1000));
 
         for (long id : rs) {
-            double rawDist = ED.distance(dh.getRaw(id), dh.getRaw(exampleID));
+            double rawDist = df.distance(dh.getRaw(id), dh.getRaw(exampleID));
             System.out.println(id + ":\t" + rawDist);
         }
 

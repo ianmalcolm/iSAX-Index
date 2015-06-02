@@ -5,6 +5,7 @@
  */
 package ISAXIndex;
 
+import Test.ED;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,10 +25,11 @@ public class Index implements Iterable<Long> {
     private final int minCap;
     private final int maxCap;
     private final int maxWidth;
+    private Distance df;
 
     private static final Logger logger = Logger.getLogger(Index.class.getName());
 
-    public Index(int maxCardinality, int dimensionality) {
+    public Index(int maxCardinality, int dimensionality, Distance _df) {
         if (dimensionality < 4 || dimensionality > 16) {
             throw new UnsupportedOperationException("not supported");
         }
@@ -36,11 +38,16 @@ public class Index implements Iterable<Long> {
         minCap = (1 << (dimension - 4));
         maxCap = 1 << (dimension + 0);
         maxWidth = (int) Math.ceil(Math.log(maxCardinality - 1) / Math.log(2));
+        df = _df;
     }
 
     public static void setLoggerLevel(Level level) {
         logger.setLevel(level);
         Node.setLoggerLevel(level);
+    }
+
+    public void distanceFuntion(Distance _df) {
+        df = _df;
     }
 
     private Stack<Node> findPath(Node startNode, ISAX o) {
@@ -120,8 +127,8 @@ public class Index implements Iterable<Long> {
 
     public ArrayList<Long> rs(double[] vals, double dist, int windowSize) {
         ISAX q = new ISAX(vals, dimension, 1 << maxWidth);
-        double _dist2 =  dist*dist / windowSize * dimension;
-        
+        double _dist2 = dist * dist / windowSize * dimension;
+
         ArrayList<Long> result = new ArrayList();
         ArrayList<Node> candidates = new ArrayList();
         candidates.add(root);
@@ -141,7 +148,7 @@ public class Index implements Iterable<Long> {
 
     public ArrayList<Long> rs(double[] vals, double dist, int windowSize, DataHandler dh) {
         ISAX q = new ISAX(vals, dimension, 1 << maxWidth);
-        double _dist2 =  dist*dist / windowSize * dimension;
+        double _dist2 = dist * dist / windowSize * dimension;
 
         ArrayList<IDDist> list = new ArrayList();
         ArrayList<Node> candidates = new ArrayList();
@@ -152,7 +159,7 @@ public class Index implements Iterable<Long> {
             if (n.minDist(q) <= _dist2) {
                 if (n.isLeaf()) {
                     for (Long id : ((Leaf) n).children) {
-                        double curDist = ED.distance(vals, dh.get(id));
+                        double curDist = df.distance(vals, dh.get(id));
                         if (curDist <= dist) {
                             list.add(new IDDist(id, curDist));
                         }
@@ -379,7 +386,7 @@ public class Index implements Iterable<Long> {
         ArrayList<Long> results = knn(vals, k, exception);
         KNNID knn = new KNNID(k, exception);
         for (Long id : results) {
-            double dist = ED.distance(vals, dh.get(id));
+            double dist = df.distance(vals, dh.get(id));
             knn.add(id, dist);
         }
 
@@ -394,7 +401,7 @@ public class Index implements Iterable<Long> {
                     if (knn.contains(id)) {
                         continue;
                     }
-                    double dist = ED.distance(vals, dh.get(id));
+                    double dist = df.distance(vals, dh.get(id));
                     if (dist <= knn.kDist()) {
                         knn.add(id, dist);
                     }
