@@ -14,4 +14,6 @@ public abstract class DataHandler {
     public abstract long size();
 
     public abstract double[] get(long i);
+    
+    public abstract int windowSize();
 }

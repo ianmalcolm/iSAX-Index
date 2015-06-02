@@ -169,4 +169,9 @@ class DataInMemory extends DataHandler {
         double[] subSeries = TSUtils.getSubSeries(vals, ((int) i), ((int) i) + windowSize);
         return subSeries;
     }
+
+    @Override
+    public int windowSize() {
+        return this.windowSize;
+    }
 }
