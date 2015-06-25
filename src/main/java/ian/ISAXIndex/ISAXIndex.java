@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  *
  * @author ian
  */
-public class Index implements Iterable<Long> {
+public class ISAXIndex implements Iterable<Long> {
 
     private final Node root;
     private final int dimension;
@@ -26,9 +26,9 @@ public class Index implements Iterable<Long> {
     private final int maxWidth;
     private Distance df;
 
-    private static final Logger logger = Logger.getLogger(Index.class.getName());
+    private static final Logger logger = Logger.getLogger(ISAXIndex.class.getName());
 
-    public Index(int maxCardinality, int dimensionality, Distance _df) {
+    public ISAXIndex(int maxCardinality, int dimensionality, Distance _df) {
         if (dimensionality < 4 || dimensionality > 16) {
             throw new UnsupportedOperationException("not supported");
         }

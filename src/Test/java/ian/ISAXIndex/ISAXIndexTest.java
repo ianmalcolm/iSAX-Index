@@ -23,7 +23,7 @@ public class ISAXIndexTest {
 	private int DIMENSIONALITY = 4;
 	private int CARDINALITY = 16;
 	private int LENGTH = -1;
-	private Index index = null;
+	private ISAXIndex index = null;
 	private DataInMemory dh = null;
 	private Distance df = null;
 
@@ -49,7 +49,7 @@ public class ISAXIndexTest {
 
 		dh = new DataInMemory(timeseries, windowSize, mean, std);
 		df = new ED();
-		index = new Index(CARDINALITY, DIMENSIONALITY, df);
+		index = new ISAXIndex(CARDINALITY, DIMENSIONALITY, df);
 
 		for (int i = 0; i < timeseries.length - windowSize + 1; i++) {
 			index.add(dh.get(i), i);
