@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  *
  * @author ian
  */
-public class ISAXIndex implements Iterable<Long> {
+public class ISAXIndex implements java.io.Serializable, Iterable<Long> {
 
     private final Node root;
     private final int dimension;

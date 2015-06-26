@@ -9,7 +9,7 @@ package ian.ISAXIndex;
  *
  * @author ian
  */
-public abstract class Distance {
+public abstract class Distance implements java.io.Serializable {
     public abstract double distance(double[] ts1, double[] ts2);
 
     public abstract void clearCount();

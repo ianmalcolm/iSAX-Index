@@ -9,7 +9,7 @@ package ian.ISAXIndex;
  *
  * @author ian
  */
-public abstract class DataHandler {
+public abstract class DataHandler implements java.io.Serializable{
 
     public abstract long size();
 

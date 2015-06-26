@@ -9,7 +9,7 @@ package ian.ISAXIndex;
  *
  * @author ian
  */
-public class TSUtils {
+public class TSUtils  implements java.io.Serializable{
 
     /**
      * Computes the mean value of timeseries.

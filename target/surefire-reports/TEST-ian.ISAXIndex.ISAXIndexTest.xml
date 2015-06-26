@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite failures="0" time="25.567" errors="0" skipped="0" tests="4" name="ian.ISAXIndex.ISAXIndexTest">
+<testsuite failures="0" time="32.199" errors="0" skipped="0" tests="4" name="ian.ISAXIndex.ISAXIndexTest">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
-    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_75\jre\bin"/>
-    <property name="java.vm.version" value="24.75-b04"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_60\jre\bin"/>
+    <property name="java.vm.version" value="24.60-b09"/>
     <property name="java.vm.vendor" value="Oracle Corporation"/>
     <property name="java.vendor.url" value="http://java.oracle.com/"/>
     <property name="path.separator" value=";"/>
@@ -13,45 +13,45 @@
     <property name="user.script" value=""/>
     <property name="user.country" value="CN"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
-    <property name="sun.os.patch.level" value=""/>
+    <property name="sun.os.patch.level" value="Service Pack 1"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="user.dir" value="C:\Users\ian\github\iSAX-Index"/>
-    <property name="java.runtime.version" value="1.7.0_75-b13"/>
+    <property name="java.runtime.version" value="1.7.0_60-b19"/>
     <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
-    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\endorsed"/>
+    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.7.0_60\jre\lib\endorsed"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.io.tmpdir" value="C:\Users\ian\AppData\Local\Temp\"/>
     <property name="line.separator" value="
 "/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="user.variant" value=""/>
-    <property name="os.name" value="Windows 8.1"/>
-    <property name="classworlds.conf" value="C:\Users\ian\github\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf1827639476137669892.tmp"/>
+    <property name="os.name" value="Windows 7"/>
+    <property name="classworlds.conf" value="C:\Users\ian\github\scala\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf8060498104094569200.tmp"/>
     <property name="sun.jnu.encoding" value="GBK"/>
-    <property name="java.library.path" value="C:\Program Files\Java\jdk1.7.0_75\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Sony\VAIO Improvement;C:\Program Files (x86)\Sony\VAIO BIOS Data Transfer Utility\;C:\Program Files (x86)\Sony\VAIO Startup Setting Tool;C:\Program Files\MATLAB\R2012b\runtime\win64;C:\Program Files\MATLAB\R2012b\bin;C:\Program Files\MiKTeX 2.9\miktex\bin\x64\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\bin\x86;C:\Program Files (x86)\Intel\OpenCL SDK\3.0\bin\x64;C:\Program Files (x86)\Skype\Phone\;C:\Users\ian\Anaconda;C:\Users\ian\Anaconda\Scripts;C:\Program Files (x86)\gnuplot\bin;C:\Users\ian\putty\;C:\users\ian\opencv300\build\x64\vc12\bin;C:\Users\ian\Tesseract-OCR;C:\Users\ian\Tesseract-OCR\lib;C:\Users\ian\MinGW\msys\1.0\bin;C:\Users\ian\MinGW\bin;C:\Users\ian\gcc-arm-none-eabi-4_9-2014q4-20141203-win32\bin;C:\Users\ian\ctags58;C:\Users\ian\hadoop-2.6.0-windows-64bit\bin;C:\Users\ian\spark-1.4.0-bin-hadoop2.6\bin;C:\Users\ian\scala-2.11.6\bin;C:\Users\ian\sbt\bin;C:\Program Files\gs\gs9.16\\bin;."/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.7.0_60\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files\MATLAB\R2012b\runtime\win64;C:\Program Files\MATLAB\R2012b\bin;C:\Program Files (x86)\Subversion\bin;C:\Program Files\MiKTeX 2.9\miktex\bin\x64\;C:\Program Files (x86)\Tesseract-OCR;C:\Users\ian\Anaconda;C:\Users\ian\Anaconda\Scripts;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Users\ian\mingw\msys\1.0\bin;C:\Users\ian\mingw\bin;C:\Users\ian\ctags58;C:\Users\ian\putty;C:\Users\ian\adt-bundle-windows-x86_64-20140702\sdk\platform-tools;C:\Users\ian\adt-bundle-windows-x86_64-20140702\sdk\tools;C:\Users\ian\opencv300\build\x64\vc12\bin;C:\Users\ian\gnuplot\bin;C:\Users\ian\MediaCoder-x64-0.8.31.5648\codecs;C:\Users\ian\MediaCoder-x64-0.8.31.5648\codecs64;C:\Users\ian\spark-1.4.0-bin-hadoop2.6\bin;C:\Users\ian\scala-2.11.6\bin;C:\Users\ian\hadoop-2.6.0-windows-64bit\bin;."/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.class.version" value="51.0"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="os.version" value="6.3"/>
+    <property name="os.version" value="6.1"/>
     <property name="user.home" value="C:\Users\ian"/>
     <property name="user.timezone" value="Asia/Shanghai"/>
     <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
     <property name="java.specification.version" value="1.7"/>
-    <property name="file.encoding" value="GBK"/>
+    <property name="file.encoding" value="UTF-8"/>
     <property name="user.name" value="ian"/>
-    <property name="java.class.path" value="/C:/Users/ian/eclipse/plugins/org.eclipse.m2e.maven.runtime_1.5.2.20150413-2214/jars/plexus-classworlds-2.5.1.jar"/>
+    <property name="java.class.path" value="/C:/Users/ian/Scala IDE for Eclipse/plugins/org.eclipse.m2e.maven.runtime_1.5.2.20150413-2214/jars/plexus-classworlds-2.5.1.jar"/>
     <property name="org.slf4j.simpleLogger.defaultLogLevel" value="info"/>
     <property name="java.vm.specification.version" value="1.7"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_75\jre"/>
+    <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_60\jre"/>
     <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B install"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="user.language" value="zh"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
     <property name="java.vm.info" value="mixed mode"/>
-    <property name="java.version" value="1.7.0_75"/>
-    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\ext;C:\WINDOWS\Sun\Java\lib\ext"/>
-    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.7.0_75\jre\lib\resources.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\rt.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jce.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.7.0_75\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.7.0_75\jre\classes"/>
+    <property name="java.version" value="1.7.0_60"/>
+    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.7.0_60\jre\lib\ext;C:\Windows\Sun\Java\lib\ext"/>
+    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.7.0_60\jre\lib\resources.jar;C:\Program Files\Java\jdk1.7.0_60\jre\lib\rt.jar;C:\Program Files\Java\jdk1.7.0_60\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.7.0_60\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.7.0_60\jre\lib\jce.jar;C:\Program Files\Java\jdk1.7.0_60\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.7.0_60\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.7.0_60\jre\classes"/>
     <property name="java.vendor" value="Oracle Corporation"/>
     <property name="maven.home" value="C:\Users\ian\github\iSAX-Index\EMBEDDED"/>
     <property name="file.separator" value="\"/>
@@ -61,8 +61,8 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase time="3.18" classname="ian.ISAXIndex.ISAXIndexTest" name="testExactKNNwithException"/>
-  <testcase time="0.134" classname="ian.ISAXIndex.ISAXIndexTest" name="testApproxKNNwithException"/>
-  <testcase time="0.322" classname="ian.ISAXIndex.ISAXIndexTest" name="testExactRangeSearch"/>
-  <testcase time="21.931" classname="ian.ISAXIndex.ISAXIndexTest" name="testIterator"/>
+  <testcase time="3.608" classname="ian.ISAXIndex.ISAXIndexTest" name="testExactKNNwithException"/>
+  <testcase time="0.147" classname="ian.ISAXIndex.ISAXIndexTest" name="testApproxKNNwithException"/>
+  <testcase time="0.358" classname="ian.ISAXIndex.ISAXIndexTest" name="testExactRangeSearch"/>
+  <testcase time="28.086" classname="ian.ISAXIndex.ISAXIndexTest" name="testIterator"/>
 </testsuite>

@@ -15,7 +15,7 @@ package ian.ISAXIndex;
  * @author Pavel Senin
  *
  */
-public final class NormalAlphabet {
+public final class NormalAlphabet  implements java.io.Serializable{
 
     /**
      * Maximal possible alphabet size.
