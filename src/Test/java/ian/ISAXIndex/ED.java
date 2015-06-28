@@ -11,6 +11,7 @@ package ian.ISAXIndex;
  */
 public class ED extends Distance {
 
+	long cnt = 0;
     /**
      * Calculates the square of the Euclidean distance between two 1D points
      * represented by real values.
@@ -84,7 +85,7 @@ public class ED extends Distance {
      * @throws TSException In the case of error.
      */
     public double distance(double[] point1, double[] point2) {
-
+    	cnt++;
         return Math.sqrt(distance2(point1, point2));
     }
 
@@ -139,12 +140,12 @@ public class ED extends Distance {
 
     @Override
     public void clearCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	cnt=0;
     }
 
     @Override
     public long getCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return cnt;
     }
 
 }

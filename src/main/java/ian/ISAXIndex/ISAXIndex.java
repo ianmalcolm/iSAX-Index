@@ -24,7 +24,7 @@ public class ISAXIndex implements java.io.Serializable, Iterable<Long> {
     private final int minCap;
     private final int maxCap;
     private final int maxWidth;
-    private Distance df;
+    public final Distance df;
 
     private static final Logger logger = Logger.getLogger(ISAXIndex.class.getName());
 
@@ -43,10 +43,6 @@ public class ISAXIndex implements java.io.Serializable, Iterable<Long> {
     public static void setLoggerLevel(Level level) {
         logger.setLevel(level);
         Node.setLoggerLevel(level);
-    }
-
-    public void distanceFuntion(Distance _df) {
-        df = _df;
     }
 
     private Stack<Node> findPath(Node startNode, ISAX o) {

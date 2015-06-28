@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: ian.ISAXIndex.ISAXIndexTest
 -------------------------------------------------------------------------------
-Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 63.896 sec
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 56.699 sec
