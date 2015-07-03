@@ -11,7 +11,7 @@ package ian.ISAXIndex;
  */
 public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 
-	private Symbol[] load;
+	private final Symbol[] load;
 
 	public ISAX(double[] vals, int dim, int card) {
 		int[] temp = getISAXVals(vals, dim, NormalAlphabet.getCuts(card));
@@ -36,6 +36,20 @@ public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 		load = new Symbol[workload.length];
 		for (int i = 0; i < workload.length; i++) {
 			load[i] = new Symbol(workload[i]);
+		}
+	}
+
+	ISAX(String key, int dim, int card) {
+		int w = (Symbol.getWidth(card)+3)/4;
+		assert (dim * w == key.length());
+		load = new Symbol[dim];
+		int cnt = 0;
+		for (int start = 0; start < key.length(); start += w) {
+			int l = Integer
+					.parseInt(
+							key.substring(start,
+									Math.min(key.length(), start + w)), 16);
+			load[cnt++] = new Symbol(l, card);
 		}
 	}
 
@@ -193,6 +207,16 @@ public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 		}
 		return l;
 	}
+
+	public String toString() {
+		String result = new String();
+		String formatPattern = "%" + (width()+3)/4 + "s";
+		for (Symbol s : load) {
+			result = result.concat(String.format(formatPattern,
+					Integer.toHexString(s.load)).replace(' ', '0'));
+		}
+		return result;
+	}
 }
 
 class Symbol implements Comparable<Symbol>, java.io.Serializable {
@@ -223,6 +247,10 @@ class Symbol implements Comparable<Symbol>, java.io.Serializable {
 		} else if (o.width < width) {
 			load = o.load << (width - o.width);
 		}
+	}
+
+	public static int getWidth(int card) {
+		return (int) Math.ceil(Math.log(card - 1) / Math.log(2));
 	}
 
 	public void setWidth(int _width) {
