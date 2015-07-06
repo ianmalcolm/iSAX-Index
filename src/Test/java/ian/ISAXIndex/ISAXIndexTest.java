@@ -1,11 +1,10 @@
 package ian.ISAXIndex;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import weka.core.Attribute;
@@ -77,8 +76,8 @@ public class ISAXIndexTest {
 			assert position < 0;
 			list.add(-1 * position - 1, id);
 		}
-		assertTrue("Error in traversal of the index", list.size() == dh.size()
-				- windowSize + 1);
+		Assert.assertTrue("Error in traversal of the index",
+				list.size() == dh.size() - windowSize + 1);
 
 	}
 
@@ -120,7 +119,7 @@ public class ISAXIndexTest {
 
 		for (long id : rs) {
 			double rawDist = df.distance(dh.getRaw(id), dh.getRaw(exampleID));
-			System.out.println(id + ":\t" + rawDist);
+			// System.out.println(id + ":\t" + rawDist);
 		}
 	}
 
@@ -129,7 +128,7 @@ public class ISAXIndexTest {
 		final long exampleID = 5100;
 		ArrayList<Long> exception = new ArrayList<Long>();
 		exception.add(exampleID);
-		final int k = 4;
+		final int k = 1;
 
 		System.out
 				.println("Find exception aware approximated k nearest neighbors of exampleID: "
@@ -140,9 +139,39 @@ public class ISAXIndexTest {
 		System.out.println("Elapsed time: "
 				+ ((double) (end.getTime() - start.getTime()) / 1000));
 
+		double nnDist = Double.POSITIVE_INFINITY;
 		for (long id : knn) {
-			double dist = df.distance(dh.getRaw(id), dh.getRaw(exampleID));
-			System.out.println(id + ":\t" + dist);
+			double dist = df.distance(dh.get(id), dh.get(exampleID));
+			if (nnDist > dist) {
+				nnDist = dist;
+			}
+			// System.out.println(id + ":\t" + dist);
 		}
+		knn = index.knn(dh.get(exampleID), k, dh, exception);
+		double nnDistExact = index.df.distance(dh.get(exampleID),
+				dh.get(knn.get(0)));
+		System.out.println("Approx nnDist " + nnDist + "\tExact nnDist "
+				+ nnDistExact);
+
+	}
+
+	@Test
+	public void testISAX2String() {
+		final long exampleID = 5100;
+		ISAX p = new ISAX(dh.get(exampleID), DIMENSIONALITY, CARDINALITY);
+		Assert.assertTrue("The SAX toString of " + exampleID
+				+ " should be 6896, but now it is " + p.toString(), p
+				.toString().equalsIgnoreCase("6896"));
+		System.out.println(p.toString());
+	}
+
+	@Test
+	public void testString2ISAX() {
+		final String word = "6896";
+		ISAX p = new ISAX(word, DIMENSIONALITY, CARDINALITY);
+		System.out.println(p.toString());
+		Assert.assertTrue(
+				"String2ISAX error, should be 6896, but it actually is "
+						+ p.toString(), p.toString().equalsIgnoreCase("6896"));
 	}
 }

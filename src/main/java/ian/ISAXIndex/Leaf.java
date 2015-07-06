@@ -6,6 +6,7 @@
 package ian.ISAXIndex;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  *
@@ -56,6 +57,10 @@ public class Leaf extends Node {
         assert i >= 0 && i < numChildren();
         return children.get(i);
     }
+    
+    public String getLoad(){
+    	return load.toString();
+    }
 
     @Override
     public boolean isRoot() {
@@ -105,4 +110,9 @@ public class Leaf extends Node {
         System.out.println("Leaf Level:\t" + levelCount + "\tIndex:\t" + parent.indexOf(this) + "\tNumber of children:\t" + numChildren());
         return numChildren();
     }
+    
+	public Iterator iterator() {
+		// TODO Auto-generated method stub
+		return children.iterator();
+	}
 }

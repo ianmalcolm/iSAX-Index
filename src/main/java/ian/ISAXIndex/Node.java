@@ -7,6 +7,7 @@ package ian.ISAXIndex;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author ian
  */
-public class Node implements Comparable<Node>, java.io.Serializable {
+public class Node implements Iterable, Comparable<Node>, java.io.Serializable {
 
 	protected Node parent = null;
 	protected ArrayList<Node> children = null;
@@ -257,6 +258,11 @@ public class Node implements Comparable<Node>, java.io.Serializable {
 
 	public void removeAll(ArrayList<Node> nodeList) {
 		children.removeAll(nodeList);
+	}
+
+	public Iterator iterator() {
+		// TODO Auto-generated method stub
+		return children.iterator();
 	}
 
 }
