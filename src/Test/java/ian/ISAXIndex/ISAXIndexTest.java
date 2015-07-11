@@ -3,25 +3,27 @@ package ian.ISAXIndex;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-
+import java.io.BufferedReader;
+import java.io.FileReader;
 import org.junit.Assert;
 import org.junit.Test;
-
-import weka.core.Attribute;
-import weka.core.Instances;
-import weka.core.converters.ConverterUtils;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Unit test for ISAXIndex.
  */
 public class ISAXIndexTest {
 
-	private String FILE = "./ecg100.arff";
-	private String DATA_VALUE_ATTRIBUTE = "value0";
+	private String FILE = "../datasets/ecg/ecg100.txt";
 	private int windowSize = 360;
 	private int DIMENSIONALITY = 4;
 	private int CARDINALITY = 16;
 	private int LENGTH = -1;
+	private int OFFSET = 0;
 	private ISAXIndex index = null;
 	private DataInMemory dh = null;
 	private Distance df = null;
@@ -34,13 +36,49 @@ public class ISAXIndexTest {
 	 * @throws Exception
 	 */
 	public ISAXIndexTest() throws Exception {
-		// get the data first
-		Instances tsData = ConverterUtils.DataSource.read(FILE);
-		Attribute dataAttribute = tsData.attribute(DATA_VALUE_ATTRIBUTE);
-		double[] timeseries = toRealSeries(tsData, dataAttribute);
+		double[] timeseries = null;
 
 		if (LENGTH > 0) {
-			timeseries = TSUtils.getSubSeries(timeseries, 0, LENGTH);
+			timeseries = new double[LENGTH];
+			int i = 0;
+			int ofsCnt = 1;
+			try (BufferedReader br = new BufferedReader(new FileReader(FILE))) {
+				String line;
+				while (ofsCnt++ < OFFSET) {
+					line = br.readLine();
+					if (line == null) {
+						System.out.println("Not enough lines in " + FILE);
+						return;
+					}
+				}
+				while (i < LENGTH) {
+					line = br.readLine();
+					if (line == null) {
+						System.out.println("Not enough lines in " + FILE);
+						return;
+					}
+					timeseries[i++] = Double.parseDouble(line);
+				}
+				br.close();
+			}
+
+		} else {
+
+			try {
+				List<String> lines = Files.readAllLines(Paths.get(FILE),
+						Charset.defaultCharset());
+				if (lines.size() < 1) {
+					return;
+				}
+				timeseries = new double[lines.size()];
+				int i = 0;
+				for (String line : lines) {
+					timeseries[i++] = Double.parseDouble(line);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 
 		double mean = TSUtils.mean(timeseries);
@@ -53,15 +91,6 @@ public class ISAXIndexTest {
 		for (int i = 0; i < timeseries.length - windowSize + 1; i++) {
 			index.add(dh.get(i), i);
 		}
-	}
-
-	private static double[] toRealSeries(Instances tsData,
-			Attribute dataAttribute) {
-		double[] vals = new double[tsData.numInstances()];
-		for (int i = 0; i < tsData.numInstances(); i++) {
-			vals[i] = tsData.instance(i).value(dataAttribute.index());
-		}
-		return vals;
 	}
 
 	/**
