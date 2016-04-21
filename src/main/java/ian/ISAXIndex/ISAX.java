@@ -9,6 +9,7 @@ package ian.ISAXIndex;
  *
  * @author ian
  */
+
 public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 
 	private final Symbol[] load;
@@ -53,7 +54,6 @@ public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 		}
 	}
 
-	// for root
 	ISAX(int dimensionality) {
 		load = new Symbol[dimensionality];
 		for (int i = 0; i < dimensionality; i++) {
@@ -96,6 +96,7 @@ public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 
 	/**
 	 * Convert real-valued series into symbolic representation.
+	 * @author Pavel Senin
 	 *
 	 * @param vals
 	 *            Real valued timeseries.
@@ -121,6 +122,7 @@ public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 	/**
 	 * Converts the timeseries into string using given cuts intervals. Useful
 	 * for not-normal distribution cuts.
+	 * @author Pavel Senin
 	 *
 	 * @param vals
 	 *            The timeseries.
@@ -138,6 +140,7 @@ public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 
 	/**
 	 * Get mapping of a number to char.
+	 * @author Pavel Senin
 	 *
 	 * @param value
 	 *            the value to map.
@@ -163,19 +166,6 @@ public class ISAX implements Comparable<ISAX>, java.io.Serializable {
 		}
 		return 0;
 	}
-
-	// public double maxDist(ISAX o) {
-	// double dist = 0.0;
-	// for (int i = 0; i < dim(); i++) {
-	// double temp = load[i].maxDist(o.load[i]);
-	// if (temp >= Double.MAX_VALUE) {
-	// return Double.MAX_VALUE;
-	// } else {
-	// dist += temp * temp;
-	// }
-	// }
-	// return dist;
-	// }
 
 	public boolean equals(ISAX o) {
 		for (int i = 0; i < dim(); i++) {
@@ -281,55 +271,6 @@ class Symbol implements Comparable<Symbol>, java.io.Serializable {
 		return load == o.load && width == o.width;
 	}
 
-	// public double maxDist(Symbol o) {
-	// if (load >= 1 << width || load <= 0) {
-	// return Double.MAX_VALUE;
-	// }
-	// if (o.load >= 1 << o.width || o.load <= 0) {
-	// return Double.MAX_VALUE;
-	// }
-	// Symbol a, b;
-	// if (this.width > o.width) {
-	// a = o;
-	// b = this;
-	// } else {
-	// a = this;
-	// b = o;
-	// }
-	// if (a.width == b.width) {
-	// double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << a.width);
-	// if (a.load > b.load) {
-	// return distMat[a.load + 1][b.load - 1];
-	// } else {
-	// return distMat[a.load - 1][b.load + 1];
-	// }
-	// } else {
-	// int widthDiff = b.width - a.width;
-	// int coarse = a.load - (b.load >> widthDiff);
-	// double[][] distMat = NormalAlphabet.getDistanceMatrix(1 << b.width);
-	// if (coarse > 0) {
-	// int lsALoad = (a.load + 1 << widthDiff) & (Integer.MAX_VALUE <<
-	// widthDiff);
-	// return distMat[b.load - 1][lsALoad];
-	// } else if (coarse < 0) {
-	// int lsALoad = (a.load - 1 << widthDiff) | (Integer.MAX_VALUE >>
-	// (Integer.SIZE - widthDiff));
-	// return distMat[b.load + 1][lsALoad];
-	// } else {
-	// int lsALoad1 = (a.load + 1 << widthDiff) & (Integer.MAX_VALUE <<
-	// widthDiff);
-	// double temp1 = distMat[b.load - 1][lsALoad1];
-	// int lsALoad2 = (a.load - 1 << widthDiff) | (Integer.MAX_VALUE >>
-	// (Integer.SIZE - widthDiff));
-	// double temp2 = distMat[b.load + 1][lsALoad2];
-	// if (temp1 > temp2) {
-	// return temp1;
-	// } else {
-	// return temp2;
-	// }
-	// }
-	// }
-	// }
 
 	public double minDist(Symbol o) {
 		Symbol a, b;

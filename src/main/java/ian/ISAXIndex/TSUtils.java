@@ -7,7 +7,7 @@ package ian.ISAXIndex;
 
 /**
  *
- * @author ian
+ * @author Pavel Senin
  */
 public class TSUtils  implements java.io.Serializable{
 

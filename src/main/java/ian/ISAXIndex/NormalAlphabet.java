@@ -6,10 +6,6 @@
 package ian.ISAXIndex;
 
 /**
- *
- * @author ian
- */
-/**
  * Implements alphabet component for SAX.
  *
  * @author Pavel Senin
